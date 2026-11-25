@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.title="WeChat-AI"
 LABEL org.opencontainers.image.description="Linux WeChat with Selkies WebRTC and WeChat-AI Bot"
 
 ARG TARGETPLATFORM
+ARG TARGETARCH
 ARG BUILDPLATFORM
 ARG APT_MIRROR="https://mirrors.tuna.tsinghua.edu.cn/ubuntu"
 ARG PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
@@ -41,11 +42,11 @@ RUN python3.12 -m venv /opt/venv-bot && \
     /opt/venv-bot/bin/pip install --upgrade pip setuptools wheel
 
 # Install WeChat based on target architecture.
-RUN case "$TARGETPLATFORM" in \
-    "linux/amd64") \
+RUN case "$TARGETARCH" in \
+    "amd64") \
         WECHAT_URL="https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb"; \
         WECHAT_ARCH="x86_64" ;; \
-    "linux/arm64") \
+    "arm64") \
         WECHAT_URL="https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb"; \
         WECHAT_ARCH="arm64" ;; \
     *) \
@@ -103,7 +104,7 @@ RUN if [ -f /usr/share/icons/hicolor/128x128/apps/wechat.png ]; then \
         cp /usr/share/icons/hicolor/128x128/apps/wechat.png /usr/share/selkies/www/icon.png; \
     fi
 
-COPY /root /
+COPY root/ /
 RUN chmod +x /scripts/*.sh /etc/s6-overlay/s6-rc.d/svc-wechat-ai/run 2>/dev/null || true
 
 RUN apt-get autoclean && \
